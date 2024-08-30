@@ -1,13 +1,12 @@
 #include "DHSDKWidget.h"
 #include <QDateTime>
 #include <thread>
-#include "dhnetsdk.h"
 
 static void OnDHDisconnect(LLONG lLoginID, char* pchDVRIP, LONG nDVRPort, LDWORD dwUser) {
 
 }
 
-DHSDKWidget::DHSDKWidget(QWidget* parent):QWidget(parent) {
+DHSDKWidget::DHSDKWidget(QWidget* parent):dhsdk_user_id(-1),QWidget(parent) {
     ui = new Ui::DHSDKWidget();
     ui->setupUi(this);
 
@@ -39,6 +38,14 @@ DHSDKWidget::DHSDKWidget(QWidget* parent):QWidget(parent) {
 
 DHSDKWidget::~DHSDKWidget() {
     delete ui;
+}
+
+void DHSDKWidget::deviceConn() {
+
+}
+
+void DHSDKWidget::loopTest() {
+
 }
 
 void DHSDKWidget::sdkTest() {

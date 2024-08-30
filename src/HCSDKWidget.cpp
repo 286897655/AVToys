@@ -1,11 +1,10 @@
 #include "HCSDKWidget.h"
 #include <QDateTime>
-#include <HCSDK/HCNetSDK.h>
 #include "SDKMap.hpp"
 
 
 HCSDKWidget::HCSDKWidget(QWidget *parent)
-    : QWidget(parent)
+    :hcsdk_user_id(-1), QWidget(parent)
 {
     ui = new Ui::HCSDKWidget();
     ui->setupUi(this);
@@ -13,7 +12,8 @@ HCSDKWidget::HCSDKWidget(QWidget *parent)
     NET_DVR_Init();
     NET_DVR_SetLogToFile(3);
 
-    connect(ui->sdkTest, SIGNAL(clicked()), this, SLOT(sdkTest()));
+    connect(ui->btnConn, SIGNAL(clicked()), this, SLOT(deviceConn()));
+    connect(ui->btnLoopTest, SIGNAL(clicked()), this, SLOT(loopTest()));
 
     connect(this, SIGNAL(AppendLog(const QString&)), this, SLOT(AppendLogToWindow(const QString&)));
 
@@ -39,6 +39,47 @@ HCSDKWidget::~HCSDKWidget()
 
 constexpr static size_t HCSDK_MAX_DEVICES = 512;
 constexpr static size_t HCSDK_MAX_VM_WIN_NUM = 256;
+
+void HCSDKWidget::deviceConn() {
+    QString device_ip = ui->txtDeviveIP->text().trimmed();
+    QString device_port = ui->txtDevicePort->text().trimmed();
+    if (device_port.isEmpty()) {
+        device_port = "8000";
+    }
+    QString device_user = ui->txtDeviceUser->text().trimmed();
+    QString device_pwd = ui->txtDevicePwd->text().trimmed();
+
+    Q_EMIT AppendLog(QString::fromUtf8("海康SDK连接设备:%1:%2---%3 %4").arg(device_ip).arg(device_port).arg(device_user).arg(device_pwd));
+    std::string str_ip = device_ip.toStdString();
+    int port = device_port.toInt();
+    std::string str_user = device_user.toStdString();
+    std::string str_pwd = device_pwd.toStdString();
+
+    NET_DVR_USER_LOGIN_INFO login_info = { 0 };
+    NET_DVR_DEVICEINFO_V40 device_info_v40 = { 0 };
+
+    // IP
+    ::strcpy(login_info.sDeviceAddress, str_ip.c_str());
+    // port
+    login_info.wPort = port;
+    // usr
+    ::strcpy(login_info.sUserName, str_user.c_str());
+    // pwd
+    ::strcpy(login_info.sPassword, str_pwd.c_str());
+
+    LONG userid = NET_DVR_Login_V40(&login_info, &device_info_v40);
+    if (userid < 0) {
+        // 登录失败
+        Q_EMIT AppendLog(QString::fromUtf8("NET_DVR_Login_V40 sync login fail with error %1").arg(NET_DVR_GetLastError()));
+        return;
+    }
+    hcsdk_user_id = userid;
+    Q_EMIT AppendLog(QString::fromUtf8("NET_DVR_Login_V40 sync login success,user id %1").arg(hcsdk_user_id));
+}
+
+void HCSDKWidget::loopTest() {
+
+}
 
 void HCSDKWidget::sdkTest() {
     NET_DVR_USER_LOGIN_INFO login_info = { 0 };

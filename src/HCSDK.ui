@@ -13,17 +13,17 @@
   <property name="windowTitle">
    <string>海康SDK测试</string>
   </property>
-  <widget class="QPushButton" name="sdkTest">
+  <widget class="QPushButton" name="btnConn">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>20</y>
-     <width>181</width>
+     <x>420</x>
+     <y>60</y>
+     <width>101</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>测试</string>
+    <string>连接</string>
    </property>
   </widget>
   <widget class="QTextBrowser" name="log_out">
@@ -34,6 +34,114 @@
      <width>801</width>
      <height>281</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="txtDeviveIP">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>10</y>
+     <width>181</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="txtDevicePort">
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>10</y>
+     <width>91</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="placeholderText">
+    <string>海康默认是8000</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>71</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>设备连接IP</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>10</y>
+     <width>71</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>设备连接端口</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>70</y>
+     <width>91</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>设备连接用户名</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="txtDeviceUser">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>60</y>
+     <width>111</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>70</y>
+     <width>81</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>设备连接密码</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="txtDevicePwd">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>60</y>
+     <width>111</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnLoopTest">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>120</y>
+     <width>101</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>轮询测试</string>
    </property>
   </widget>
  </widget>
