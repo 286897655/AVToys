@@ -2,7 +2,6 @@
 
 #include <QWidget>
 #include "ui_HCSDK.h"
-#include <HCSDK/HCNetSDK.h>
 
 class HCSDKWidget : public QWidget
 {
@@ -23,5 +22,5 @@ private Q_SLOTS:
 
 private:
     Ui::HCSDKWidget* ui;
-    LONG hcsdk_user_id;
+    int hcsdk_user_id;
 };

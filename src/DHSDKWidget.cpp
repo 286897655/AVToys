@@ -1,6 +1,7 @@
 #include "DHSDKWidget.h"
 #include <QDateTime>
 #include <thread>
+#include <dhnetsdk.h>
 
 static void OnDHDisconnect(LLONG lLoginID, char* pchDVRIP, LONG nDVRPort, LDWORD dwUser) {
 
@@ -10,7 +11,7 @@ DHSDKWidget::DHSDKWidget(QWidget* parent):dhsdk_user_id(-1),QWidget(parent) {
     ui = new Ui::DHSDKWidget();
     ui->setupUi(this);
 
-    connect(ui->sdkTest, SIGNAL(clicked()), this, SLOT(sdkTest()));
+    //connect(ui->sdkTest, SIGNAL(clicked()), this, SLOT(sdkTest()));
 
     connect(this, SIGNAL(AppendLog(const QString&)), this, SLOT(AppendLogToWindow(const QString&)));
 

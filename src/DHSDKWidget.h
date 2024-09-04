@@ -2,7 +2,7 @@
 
 #include <QWidget>
 #include "ui_DHSDK.h"
-#include <dhnetsdk.h>
+
 class DHSDKWidget : public QWidget
 {
     Q_OBJECT
@@ -22,5 +22,5 @@ private Q_SLOTS:
 
 private:
     Ui::DHSDKWidget* ui;
-    LONG dhsdk_user_id;
+    int dhsdk_user_id;
 };

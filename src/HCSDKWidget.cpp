@@ -1,6 +1,8 @@
 #include "HCSDKWidget.h"
 #include <QDateTime>
-#include "SDKMap.hpp"
+#include <QDebug>
+#include <HCSDK/HCNetSDK.h>
+
 
 
 HCSDKWidget::HCSDKWidget(QWidget *parent)
@@ -30,6 +32,12 @@ HCSDKWidget::HCSDKWidget(QWidget *parent)
         return;
     }
     // 启用能力集
+    // 设置连接设备默认值
+    {
+        ui->txtDeviveIP->setText(QString::fromUtf8("10.3.220.151"));
+        ui->txtDeviceUser->setText(QString::fromUtf8("admin"));
+        ui->txtDevicePwd->setText(QString::fromUtf8("Lty@1qaz"));
+    }
 }
 
 HCSDKWidget::~HCSDKWidget()
@@ -78,6 +86,97 @@ void HCSDKWidget::deviceConn() {
 }
 
 void HCSDKWidget::loopTest() {
+    if (hcsdk_user_id < 0) {
+        Q_EMIT AppendLog(QString::fromUtf8("未登录，请登录后测试轮询"));
+        return;
+    }
+    std::string rtsp1 = "rtsp://106.74.15.244:2554/SPg5ol5nMd2O/RSSPg5ol5nMd2O-g24s3q1gYx";
+    std::string rtsp2 = "rtsp://106.74.27.132:2554/SPg5ol5nMd2O/RSSPg5ol5nMd2O-gFys3qbcWr";
+
+    // 停止窗口的动态解码
+    // 1墙 1窗 1 子窗口
+    constexpr DWORD active_handle = 1 + (1 << 16) + (1 << 24);
+    constexpr DWORD active_handle5 = 1 + (5 << 16) + (1 << 24);
+    if (!NET_DVR_MatrixStopDynamic(hcsdk_user_id, active_handle)) {
+        Q_EMIT AppendLog(QString::fromUtf8("NET_DVR_MatrixStopDynamic %1 error %2").arg(active_handle).arg(NET_DVR_GetLastError()));
+
+        return;
+    }
+    if (!NET_DVR_MatrixStopDynamic(hcsdk_user_id, active_handle5)) {
+        Q_EMIT AppendLog(QString::fromUtf8("NET_DVR_MatrixStopDynamic %1 error %2").arg(active_handle5).arg(NET_DVR_GetLastError()));
+
+        return;
+    }
+
+
+    // 获取轮询通道开关状态
+    DWORD loop_dec_enable = 0;
+    if (!NET_DVR_MatrixGetLoopDecChanEnable(hcsdk_user_id, active_handle, &loop_dec_enable)) {
+        Q_EMIT AppendLog(QString::fromUtf8("NET_DVR_MatrixGetLoopDecChanEnable %1 error %2").arg(active_handle).arg(NET_DVR_GetLastError()));
+
+        return;
+    }
+    Q_EMIT AppendLog(QString::fromUtf8("轮询通道 %1 状态 %2").arg(active_handle).arg(loop_dec_enable));
+    if (!loop_dec_enable) {
+        Q_EMIT AppendLog(QString::fromUtf8("打开轮询通道 %1").arg(active_handle));
+        loop_dec_enable = 1;
+        if (!NET_DVR_MatrixSetLoopDecChanEnable(hcsdk_user_id, active_handle, loop_dec_enable)) {
+            Q_EMIT AppendLog(QString::fromUtf8("NET_DVR_MatrixSetLoopDecChanEnable %1 error %2").arg(active_handle).arg(NET_DVR_GetLastError()));
+
+            return;
+        }
+    }
+
+    
+
+    Q_EMIT AppendLog(QString::fromUtf8("设置轮询取流信息：%1 \n %2").arg(QString::fromStdString(rtsp1)).arg(QString::fromStdString(rtsp2)));
+    NET_DVR_PU_STREAM_URL url1 = {0}, url2 = { 0 };
+    strcpy((char*)url1.strURL, rtsp1.c_str());
+    strcpy((char*)url2.strURL, rtsp2.c_str());
+    url1.byEnable = 1;
+    url2.byEnable = 1;
+
+
+    NET_DVR_MATRIX_LOOP_DECINFO_V41 mat_loop_dec = {0};
+    mat_loop_dec.dwSize = sizeof(NET_DVR_MATRIX_LOOP_DECINFO_V41);
+    mat_loop_dec.dwPoolTime = 30;
+    mat_loop_dec.struchanConInfo[0].byEnable = 1;
+    mat_loop_dec.struchanConInfo[0].byStreamMode = 2;
+    mat_loop_dec.struchanConInfo[0].uDecStreamMode.struUrlInfo = url1;
+
+    mat_loop_dec.struchanConInfo[1].byEnable = 1;
+    mat_loop_dec.struchanConInfo[1].byStreamMode = 2;
+    mat_loop_dec.struchanConInfo[1].uDecStreamMode.struUrlInfo = url2;
+
+    if (!NET_DVR_MatrixSetLoopDecChanInfo_V41(hcsdk_user_id, active_handle, &mat_loop_dec)) {
+        Q_EMIT AppendLog(QString::fromUtf8("NET_DVR_MatrixSetLoopDecChanInfo_V41 %1 error %2").arg(active_handle).arg(NET_DVR_GetLastError()));
+
+        return;
+    }
+
+    mat_loop_dec = { 0 };
+    mat_loop_dec.dwSize = sizeof(NET_DVR_MATRIX_LOOP_DECINFO_V41);
+    mat_loop_dec.dwPoolTime = 30;
+    mat_loop_dec.struchanConInfo[0].byEnable = 1;
+    mat_loop_dec.struchanConInfo[0].byStreamMode = 2;
+    mat_loop_dec.struchanConInfo[0].uDecStreamMode.struUrlInfo = url1;
+
+    mat_loop_dec.struchanConInfo[1].byEnable = 1;
+    mat_loop_dec.struchanConInfo[1].byStreamMode = 2;
+    mat_loop_dec.struchanConInfo[1].uDecStreamMode.struUrlInfo = url2;
+
+    if (!NET_DVR_MatrixSetLoopDecChanInfo_V41(hcsdk_user_id, active_handle5, &mat_loop_dec)) {
+        Q_EMIT AppendLog(QString::fromUtf8("NET_DVR_MatrixSetLoopDecChanInfo_V41 %1 error %2").arg(active_handle5).arg(NET_DVR_GetLastError()));
+
+        return;
+    }
+
+    /*constexpr DWORD active_handle2 = 1 + (2 << 16) + (1 << 24);
+    constexpr DWORD active_handle3 = 1 + (3 << 16) + (1 << 24);
+
+    constexpr DWORD active_handle4 = 1 + (4 << 16) + (1 << 24);*/
+    
+    /*constexpr DWORD active_handle4 = 1 + (6 << 16) + (1 << 24);*/
 
 }
 
